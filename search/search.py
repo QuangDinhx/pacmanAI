@@ -87,29 +87,21 @@ def depthFirstSearch(problem):
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
     "*** YOUR CODE HERE ***"
-    print "Start:", problem.getStartState()
-    print "Is the start a goal?", problem.isGoalState(problem.getStartState())
-    print "Start's successors:", problem.getSuccessors(problem.getStartState())
-    print problem
+   
   
     visited = dict()
     state = problem.getStartState()
-    frontier = util.Stack()
+    states = util.Stack()
+    startState = (state, [])
+    states.push(startState)
 
-    node = {}
-    node["parent"] = None
-    node["action"] = None
-    node["state"] = state
-    frontier.push(node)
-
-  # DFS, non-recursive implementation
-  # by non-recurisve, we need to use stack to record
-  # which node  to visit when recall 
-    while not frontier.isEmpty():
-        node = frontier.pop()
-        state = node["state"]
+    while not states.isEmpty():
+        state,action = states.pop()
+       
+        
         if visited.has_key(hash(state)):
             continue
+
         visited[hash(state)] = True
 
         if problem.isGoalState(state) == True:
@@ -117,41 +109,110 @@ def depthFirstSearch(problem):
 
         for child in problem.getSuccessors(state):
             if not visited.has_key(hash(child[0])):
-                sub_node = {}
-                sub_node["parent"] = node
-                sub_node["action"] = child[1]
-                sub_node["state"] = child[0]
-                frontier.push(sub_node)
+                newState = child[0]
+                newAction = child[1]
+                stepState = (newState,action + [newAction])
+                states.push(stepState)
 
-    actions = []
-    while node["action"] != None:
-        actions.insert(0, node["action"])
-        node = node["parent"]
-
-    return actions
+    return action
     
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+
+    visited = dict()
+    state = problem.getStartState()
+    states = util.Queue()
+    startState = (state, [])
+    states.push(startState)
+
+    while not states.isEmpty():
+        state,action = states.pop()
+        if visited.has_key(hash(state)):
+            continue
+
+        visited[hash(state)] = True
+
+        if problem.isGoalState(state) == True:
+            return action
+
+        for child in problem.getSuccessors(state):
+            if not visited.has_key(hash(child[0])):
+                newState = child[0]
+                newAction = child[1]
+                stepState = (newState,action + [newAction])
+                states.push(stepState)
+
+    return action
+    
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    visited = dict()
+    state = problem.getStartState()
+    states = util.PriorityQueue()
+    startState = (state, [])
+    states.push(startState,0)
+
+    while not states.isEmpty():
+        state,action = states.pop()
+        if visited.has_key(hash(state)):
+            continue
+
+        visited[hash(state)] = True
+
+        if problem.isGoalState(state) == True:
+            return action
+
+        for child in problem.getSuccessors(state):
+            if not visited.has_key(hash(child[0])):
+                newState = child[0]
+                newAction = child[1]
+                stepState = (newState,action + [newAction])
+                newCost = problem.getCostOfActions(action + [newAction])
+                states.push(stepState,newCost)
+
+    return action
 
 def nullHeuristic(state, problem=None):
     """
     A heuristic function estimates the cost from the current state to the nearest
     goal in the provided SearchProblem.  This heuristic is trivial.
     """
+    
     return 0
 
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    visited = dict()
+    state = problem.getStartState()
+    states = util.PriorityQueue()
+    startState = (state, [])
+    states.push(startState,nullHeuristic(state, problem))
+
+    while not states.isEmpty():
+        state,action = states.pop()
+        if visited.has_key(hash(state)):
+            continue
+
+        visited[hash(state)] = True
+
+        if problem.isGoalState(state) == True:
+            return action
+
+        for child in problem.getSuccessors(state):
+            if not visited.has_key(hash(child[0])):
+                newState = child[0]
+                newAction = child[1]
+                stepState = (newState,action + [newAction])
+                newCost = problem.getCostOfActions(action + [newAction]) + heuristic(newState,problem)
+                states.push(stepState,newCost)
+
+    return action
 
 
 # Abbreviations
